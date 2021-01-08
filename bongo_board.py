@@ -43,7 +43,7 @@ class BongoBoard(gym.Env):
         "video.frames_per_second": 15
     }
 
-    # TODO(jhchen): 需要將常數修改為符合作業的規範
+    # TODO(jhchen): 將常數修改為符合作業的規範
     LINK_LENGTH_1 = 1.  # [m]
     LINK_LENGTH_2 = 1.  # [m]
     LINK_MASS_1 = 1.  #: [kg] mass of link 1
@@ -64,7 +64,7 @@ class BongoBoard(gym.Env):
 
     def __init__(self):
         self.viewer = None
-        # TODO(jhchen): 需要確定數值範圍
+        # TODO(jhchen): 確定數值範圍
         high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2],
                         dtype=np.float32)
         low = -high
@@ -92,6 +92,10 @@ class BongoBoard(gym.Env):
         ns[2] = bound(ns[2], -self.MAX_VEL_1, self.MAX_VEL_1)
         ns[3] = bound(ns[3], -self.MAX_VEL_2, self.MAX_VEL_2)
         self.state = ns
+        done = self.is_done()
+        reward = 1. if not done else 0.
+        obervation = self.__get_observation()
+        return (obervation, reward, done, {})
 
     def __dsdt(self, s_augmented, t):
         m1 = self.LINK_MASS_1
@@ -130,6 +134,11 @@ class BongoBoard(gym.Env):
         ddtheta1 = -(d2 * ddtheta2 + phi1) / d1
         return (dtheta1, dtheta2, ddtheta1, ddtheta2, 0.)
 
+    def is_done(self):
+        s = self.state
+        # TODO(jhchen): 重新設定終止條件
+        return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.)
+
     def reset(self):
         self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4, ))
         return self.__get_observation()
@@ -139,6 +148,43 @@ class BongoBoard(gym.Env):
         return np.array(
             [cos(s[0]), sin(s[0]),
              cos(s[1]), sin(s[1]), s[2], s[3]])
+
+    def render(self, mode='human'):
+        from gym.envs.classic_control import rendering
+        # TODO(jhchen): 重新設計畫面以符合作業的要求
+        if self.viewer is None:
+            self.viewer = rendering.Viewer(500, 500)
+            # 2.2 for default
+            bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2
+            self.viewer.set_bounds(-bound, bound, -bound, bound)
+
+        s = self.state
+        if s is None:
+            return None
+
+        p1 = [-self.LINK_LENGTH_1 * cos(s[0]), self.LINK_LENGTH_1 * sin(s[0])]
+
+        p2 = [
+            p1[0] - self.LINK_LENGTH_2 * cos(s[0] + s[1]),
+            p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1])
+        ]
+
+        xys = np.array([[0, 0], p1, p2])[:, ::-1]
+        thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
+        link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
+
+        self.viewer.draw_line((-2.2, 1), (2.2, 1))
+        for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
+            l, r, t, b = 0, llen, .1, -.1
+            jtransform = rendering.Transform(rotation=th, translation=(x, y))
+            link = self.viewer.draw_polygon([(l, b), (l, t), (r, t), (r, b)])
+            link.add_attr(jtransform)
+            link.set_color(0, .8, .8)
+            circ = self.viewer.draw_circle(.1)
+            circ.set_color(.8, .8, 0)
+            circ.add_attr(jtransform)
+
+        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
     def close(self):
         if self.viewer:
@@ -239,10 +285,10 @@ def bound(x, minimum, maximum=None):
         x: scalar
     
     Returns:
-        x: scalar, bound between min (m) and Max (M)
+        x: scalar, bound between minimum and maximum
     """
     if maximum is None:
         maximum = minimum[1]
         minimum = minimum[0]
-    # bound x between min (m) and Max (M)
+    # bound x between minimum and maximum.
     return min(max(x, minimum), maximum)
