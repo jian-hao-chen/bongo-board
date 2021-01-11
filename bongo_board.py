@@ -44,12 +44,12 @@ class BongoBoard(gym.Env):
     }
 
     # TODO(jhchen): 將常數修改為符合作業的規範
-    LINK_LENGTH_1 = 1.  # [m]
-    LINK_LENGTH_2 = 1.  # [m]
+    LINK_LENGTH_1 = 0.25  # [m]
+    LINK_LENGTH_2 = 1.1  # [m]
     LINK_MASS_1 = 1.  #: [kg] mass of link 1
-    LINK_MASS_2 = 1.  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
-    LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
+    LINK_MASS_2 = 5.  #: [kg] mass of link 2
+    LINK_COM_POS_1 = 0.125  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_2 = 1.1  #: [m] position of the center of mass of link 2
     LINK_MOI = 1.  #: moments of inertia for both links
 
     MAX_VEL_1 = 4 * pi
@@ -64,7 +64,6 @@ class BongoBoard(gym.Env):
 
     def __init__(self):
         self.viewer = None
-        # TODO(jhchen): 確定數值範圍
         high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2],
                         dtype=np.float32)
         low = -high
@@ -76,6 +75,21 @@ class BongoBoard(gym.Env):
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
+
+    def reset(self):
+        theta1 = self.np_random.uniform(low=pi - 0.1, high=pi + 0.1)
+        theta2 = self.np_random.uniform(low=-0.1, high=0.1)
+        dtheta1 = self.np_random.uniform(low=-0.1, high=0.1)
+        dtheta2 = self.np_random.uniform(low=-0.1, high=0.1)
+        self.state = np.array([theta1, theta2, dtheta1, dtheta2])
+
+        return self.__get_observation()
+
+    def __get_observation(self):
+        s = self.state
+        return np.array(
+            [cos(s[0]), sin(s[0]),
+             cos(s[1]), sin(s[1]), s[2], s[3]])
 
     def step(self, action):
         s = self.state
@@ -138,16 +152,6 @@ class BongoBoard(gym.Env):
         s = self.state
         # TODO(jhchen): 重新設定終止條件
         return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.)
-
-    def reset(self):
-        self.state = self.np_random.uniform(low=-0.1, high=0.1, size=(4, ))
-        return self.__get_observation()
-
-    def __get_observation(self):
-        s = self.state
-        return np.array(
-            [cos(s[0]), sin(s[0]),
-             cos(s[1]), sin(s[1]), s[2], s[3]])
 
     def render(self, mode='human'):
         from gym.envs.classic_control import rendering
