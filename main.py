@@ -8,9 +8,8 @@ def main():
     env = BongoBoard()
     env.reset()
     env.render()
-    print(env.state)
-    import time
-    time.sleep(5)
+    # import time
+    # time.sleep(5)
     while True:
         action = env.action_space.sample()
         observation, reward, done, info = env.step(action)

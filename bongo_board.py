@@ -44,11 +44,11 @@ class BongoBoard(gym.Env):
     }
 
     # TODO(jhchen): 將常數修改為符合作業的規範
-    LINK_LENGTH_1 = 0.25  # [m]
+    LINK_LENGTH_1 = 0.125  # [m]
     LINK_LENGTH_2 = 1.1  # [m]
     LINK_MASS_1 = 1.  #: [kg] mass of link 1
     LINK_MASS_2 = 5.  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.125  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_1 = 0  #: [m] position of the center of mass of link 1
     LINK_COM_POS_2 = 1.1  #: [m] position of the center of mass of link 2
     LINK_MOI = 1.  #: moments of inertia for both links
 
@@ -60,7 +60,7 @@ class BongoBoard(gym.Env):
     # Use dynamics equations from the nips paper or the book.
     book_or_nips = "book"
     # timespan
-    dt = 0.2
+    dt = 0.01
 
     def __init__(self):
         self.viewer = None
@@ -77,7 +77,7 @@ class BongoBoard(gym.Env):
         return [seed]
 
     def reset(self):
-        theta1 = self.np_random.uniform(low=pi - 0.1, high=pi + 0.1)
+        theta1 = self.np_random.uniform(low=pi-0.1, high=pi+0.1)
         theta2 = self.np_random.uniform(low=-0.1, high=0.1)
         dtheta1 = self.np_random.uniform(low=-0.1, high=0.1)
         dtheta2 = self.np_random.uniform(low=-0.1, high=0.1)
@@ -150,16 +150,18 @@ class BongoBoard(gym.Env):
 
     def is_done(self):
         s = self.state
-        # TODO(jhchen): 重新設定終止條件
-        return bool(-cos(s[0]) - cos(s[1] + s[0]) > 1.)
+        min_theta1 = np.arctan(5) * 2
+        max_theta2 = pi / 2 + np.arctan(2 / 5)
+        print(max_theta2)
+        condition = (abs(s[0]) < min_theta1) or (abs(s[1]) > max_theta2)
+        print(condition)
+        return condition
 
     def render(self, mode='human'):
         from gym.envs.classic_control import rendering
-        # TODO(jhchen): 重新設計畫面以符合作業的要求
         if self.viewer is None:
             self.viewer = rendering.Viewer(500, 500)
-            # 2.2 for default
-            bound = self.LINK_LENGTH_1 + self.LINK_LENGTH_2 + 0.2
+            bound = self.LINK_LENGTH_1 * 2 + self.LINK_LENGTH_2 + 0.2
             self.viewer.set_bounds(-bound, bound, -bound, bound)
 
         s = self.state
@@ -173,22 +175,38 @@ class BongoBoard(gym.Env):
             p1[1] + self.LINK_LENGTH_2 * sin(s[0] + s[1])
         ]
 
-        xys = np.array([[0, 0], p1, p2])[:, ::-1]
-        thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
-        link_lengths = [self.LINK_LENGTH_1, self.LINK_LENGTH_2]
+        # Draws floor
+        self.viewer.draw_line((-2.2, -0.126), (2.2, -0.126))
+        # Draws Bongo
+        bongo_transform = rendering.Transform(rotation=s[0])
+        bongo = self.viewer.draw_circle(radius=0.125, res=180)
+        bongo.set_color(*rgb(244, 204, 204))
+        bongo.add_attr(bongo_transform)
 
-        self.viewer.draw_line((-2.2, 1), (2.2, 1))
-        for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
-            l, r, t, b = 0, llen, .1, -.1
-            jtransform = rendering.Transform(rotation=th, translation=(x, y))
-            link = self.viewer.draw_polygon([(l, b), (l, t), (r, t), (r, b)])
-            link.add_attr(jtransform)
-            link.set_color(0, .8, .8)
-            circ = self.viewer.draw_circle(.1)
-            circ.set_color(.8, .8, 0)
-            circ.add_attr(jtransform)
+        # Draws board
+        l = self.LINK_LENGTH_1 * 2 * 5
+        thk = 0.04
+        v = [(-l / 2, 0), (-l / 2, thk), (l / 2, thk), (l / 2, 0)]
+        board_transform = rendering.Transform(rotation=s[0],
+                                              translation=p1[::-1])
+        board = self.viewer.draw_polygon(v)
+        board.set_color(*rgb(191, 144, 0))
+        board.add_attr(board_transform)
 
-        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
+        # Draws robot
+        l = self.LINK_LENGTH_2
+        thk = 0.06
+        v = [(-thk / 2, 0), (-thk / 2, l), (thk / 2, l), (thk / 2, 0)]
+        robot_transform = rendering.Transform(rotation=s[0] + s[1],
+                                              translation=p2[::-1])
+        robot = self.viewer.draw_polygon(v)
+        robot.set_color(*rgb(17, 85, 204))
+        robot.add_attr(robot_transform)
+        robot_head = self.viewer.draw_circle(radius=0.2, res=180)
+        robot_head.set_color(*rgb(207, 226, 243))
+        robot_head.add_attr(robot_transform)
+
+        return self.viewer.render(return_rgb_array=(mode == 'rgb_array'))
 
     def close(self):
         if self.viewer:
@@ -296,3 +314,10 @@ def bound(x, minimum, maximum=None):
         minimum = minimum[0]
     # bound x between minimum and maximum.
     return min(max(x, minimum), maximum)
+
+
+def rgb(r, g, b):
+    """
+    Normalizes rgb color values from [0, 255] to [0, 1.0].
+    """
+    return (r / 255, g / 255, b / 255)
