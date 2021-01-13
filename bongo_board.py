@@ -43,7 +43,6 @@ class BongoBoard(gym.Env):
         "video.frames_per_second": 15
     }
 
-    # TODO(jhchen): 將常數修改為符合作業的規範
     LINK_LENGTH_1 = 0.125  # [m]
     LINK_LENGTH_2 = 1.1  # [m]
     LINK_MASS_1 = 1.  #: [kg] mass of link 1
