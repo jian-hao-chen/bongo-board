@@ -47,7 +47,7 @@ class BongoBoard(gym.Env):
     LINK_LENGTH_2 = 1.1  # [m]
     LINK_MASS_1 = 1.  #: [kg] mass of link 1
     LINK_MASS_2 = 5.  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_1 = 0.125  #: [m] position of the center of mass of link 1
     LINK_COM_POS_2 = 1.1  #: [m] position of the center of mass of link 2
     LINK_MOI = 1.  #: moments of inertia for both links
 
@@ -59,7 +59,7 @@ class BongoBoard(gym.Env):
     # Use dynamics equations from the nips paper or the book.
     book_or_nips = "book"
     # timespan
-    dt = 0.01
+    dt = 0.05
 
     def __init__(self):
         self.viewer = None
@@ -76,7 +76,7 @@ class BongoBoard(gym.Env):
         return [seed]
 
     def reset(self):
-        theta1 = self.np_random.uniform(low=pi-0.1, high=pi+0.1)
+        theta1 = self.np_random.uniform(low=pi - 0.1, high=pi + 0.1)
         theta2 = self.np_random.uniform(low=-0.1, high=0.1)
         dtheta1 = self.np_random.uniform(low=-0.1, high=0.1)
         dtheta2 = self.np_random.uniform(low=-0.1, high=0.1)
@@ -88,7 +88,8 @@ class BongoBoard(gym.Env):
         s = self.state
         return np.array(
             [cos(s[0]), sin(s[0]),
-             cos(s[1]), sin(s[1]), s[2], s[3]])
+             cos(s[1]), sin(s[1]), s[2], s[3]],
+            dtype=np.float)
 
     def step(self, action):
         s = self.state
@@ -151,9 +152,7 @@ class BongoBoard(gym.Env):
         s = self.state
         min_theta1 = np.arctan(5) * 2
         max_theta2 = pi / 2 + np.arctan(2 / 5)
-        print(max_theta2)
         condition = (abs(s[0]) < min_theta1) or (abs(s[1]) > max_theta2)
-        print(condition)
         return condition
 
     def render(self, mode='human'):
