@@ -47,19 +47,19 @@ class BongoBoard(gym.Env):
     LINK_LENGTH_2 = 1.1  # [m]
     LINK_MASS_1 = 10.  #: [kg] mass of link 1
     LINK_MASS_2 = 5.  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.125  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_1 = 0.125 / 2  #: [m] position of the center of mass of link 1
     LINK_COM_POS_2 = 1.1  #: [m] position of the center of mass of link 2
     LINK_MOI = 1.  #: moments of inertia for both links
 
     MAX_VEL_1 = 4 * pi
-    MAX_VEL_2 = 9 * pi
+    MAX_VEL_2 = pi
 
-    AVAILABLE_TORQUE = [-1., +1]
+    AVAILABLE_TORQUE = [-1., +1.]
 
     # Use dynamics equations from the nips paper or the book.
     book_or_nips = "book"
     # timespan
-    dt = 0.05
+    dt = 0.1
 
     def __init__(self):
         self.viewer = None
@@ -76,10 +76,10 @@ class BongoBoard(gym.Env):
         return [seed]
 
     def reset(self):
-        theta1 = self.np_random.uniform(low=pi - 0.1, high=pi + 0.1)
-        theta2 = self.np_random.uniform(low=-0.1, high=0.1)
-        dtheta1 = self.np_random.uniform(low=-0.1, high=0.1)
-        dtheta2 = self.np_random.uniform(low=-0.1, high=0.1)
+        theta1 = self.np_random.uniform(low=pi - 0.01, high=pi + 0.01)
+        theta2 = self.np_random.uniform(low=-0.01, high=0.01)
+        dtheta1 = self.np_random.uniform(low=-0.01, high=0.01)
+        dtheta2 = self.np_random.uniform(low=-0.01, high=0.01)
         self.state = np.array([theta1, theta2, dtheta1, dtheta2])
 
         return self.__get_observation()
@@ -108,8 +108,8 @@ class BongoBoard(gym.Env):
         self.state = ns
         done = self.is_done()
         reward = 1.
-        obervation = self.__get_observation()
-        return (obervation, reward, done, {})
+        observation = self.__get_observation()
+        return (observation, reward, done, {})
 
     def __dsdt(self, s_augmented, t):
         m1 = self.LINK_MASS_1
@@ -154,7 +154,7 @@ class BongoBoard(gym.Env):
         max_theta2 = pi / 2 + np.arctan(2 / 5)
         condition1 = (abs(s[0]) < min_theta1)
         condition2 = (abs(s[1]) > max_theta2)
-        return condition2
+        return (condition1 or condition2)
 
     def render(self, mode='human'):
         from gym.envs.classic_control import rendering
