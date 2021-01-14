@@ -45,7 +45,7 @@ class BongoBoard(gym.Env):
 
     LINK_LENGTH_1 = 0.125  # [m]
     LINK_LENGTH_2 = 1.1  # [m]
-    LINK_MASS_1 = 1.  #: [kg] mass of link 1
+    LINK_MASS_1 = 10.  #: [kg] mass of link 1
     LINK_MASS_2 = 5.  #: [kg] mass of link 2
     LINK_COM_POS_1 = 0.125  #: [m] position of the center of mass of link 1
     LINK_COM_POS_2 = 1.1  #: [m] position of the center of mass of link 2
@@ -54,7 +54,7 @@ class BongoBoard(gym.Env):
     MAX_VEL_1 = 4 * pi
     MAX_VEL_2 = 9 * pi
 
-    AVAILABLE_TORQUE = [-1., 0., +1]
+    AVAILABLE_TORQUE = [-1., +1]
 
     # Use dynamics equations from the nips paper or the book.
     book_or_nips = "book"
@@ -67,7 +67,7 @@ class BongoBoard(gym.Env):
                         dtype=np.float32)
         low = -high
         self.observation_space = spaces.Box(low, high)
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(2)
         self.state = None
         self.seed()
 
@@ -107,7 +107,7 @@ class BongoBoard(gym.Env):
         ns[3] = bound(ns[3], -self.MAX_VEL_2, self.MAX_VEL_2)
         self.state = ns
         done = self.is_done()
-        reward = 1. if not done else 0.
+        reward = 1.
         obervation = self.__get_observation()
         return (obervation, reward, done, {})
 
@@ -152,8 +152,9 @@ class BongoBoard(gym.Env):
         s = self.state
         min_theta1 = np.arctan(5) * 2
         max_theta2 = pi / 2 + np.arctan(2 / 5)
-        condition = (abs(s[0]) < min_theta1) or (abs(s[1]) > max_theta2)
-        return condition
+        condition1 = (abs(s[0]) < min_theta1)
+        condition2 = (abs(s[1]) > max_theta2)
+        return condition2
 
     def render(self, mode='human'):
         from gym.envs.classic_control import rendering

@@ -10,16 +10,24 @@ from torch.distributions import Categorical
 EPS = np.finfo(np.float32).eps.item()
 
 
-class Policy(nn.Module):
+class Reinforce(nn.Module):
     """A neural network implemented with `PyTorch` as Policy.
     
     Reference:
     https://github.com/pytorch/examples/tree/master/reinforcement_learning
     """
-    def __init__(self, gamma, learning_rate, optimizer=None):
-        super(Policy, self).__init__()
-        self.fc1 = nn.Linear(4, 128)
-        self.fc2 = nn.Linear(128, 2)
+    def __init__(self,
+                 input_nodes,
+                 output_nodes,
+                 gamma,
+                 learning_rate,
+                 optimizer=None):
+        super(Reinforce, self).__init__()
+        self.fc1 = nn.Linear(input_nodes, 128)
+        self.drop1 = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(128, 64)
+        self.drop2 = nn.Dropout(0.25)
+        self.out = nn.Linear(64, output_nodes)
 
         self.saved_log_probs = []
         self.rewards = []
@@ -29,8 +37,12 @@ class Policy(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
+        x = self.drop1(x)
         x = F.leaky_relu(x)
         x = self.fc2(x)
+        x = self.drop2(x)
+        x = F.leaky_relu(x)
+        x = self.out(x)
         return F.softmax(x, dim=1)
 
     def select_action(self, observation):

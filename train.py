@@ -6,12 +6,12 @@ import numpy as np
 import torch
 
 from bongo_board import BongoBoard
-from policy import Policy
+from policy import Reinforce
 
 parser = argparse.ArgumentParser(description='Bongo Board training script.')
 parser.add_argument('--episodes',
                     type=int,
-                    default=1000,
+                    default=2000,
                     metavar='EPISODES',
                     dest='EPISODES',
                     help='max episodes (default: 1000)')
@@ -29,24 +29,31 @@ parser.add_argument('--alpha',
                     help='learning rate (default: 0.001)')
 parser.add_argument('--seed',
                     type=int,
-                    default=543,
+                    default=9527,
                     metavar='SEED',
                     dest='SEED',
                     help='random seed (default: 543)')
+parser.add_argument('--no-render',
+                    action='store_true',
+                    dest='NO_RENDER',
+                    help='set to disable render.')
 args = parser.parse_args()
 
-TARGET_REWARD = 1000
+TARGET_REWARD = 500
 
 
 def main():
-    policy = Policy(args.GAMMA, args.ALPHA, torch.optim.Adam)
     import gym
-    # env = BongoBoard()
-    env = gym.make("CartPole-v1")
+    env = BongoBoard()
+    # env = gym.make("CartPole-v1")
     env.seed(args.SEED)
     torch.manual_seed(args.SEED)
     env.reset()
 
+    input_nodes = env.observation_space.shape[0]
+    output_nodes = env.action_space.n
+    policy = Reinforce(input_nodes, output_nodes, args.GAMMA, args.ALPHA,
+                       torch.optim.Adam)
     moving_reward = 0
     for ep in range(1, args.EPISODES + 1):
         observation, ep_reward = env.reset(), 0
@@ -56,12 +63,14 @@ def main():
             observation, reward, done, _ = env.step(action)
             policy.rewards.append(reward)
             ep_reward += reward
-            env.render()
+            if not args.NO_RENDER:
+                env.render()
             if done:
                 break
         # Press `Esc` to early exit.
-        if not env.viewer.isopen:
-            break
+        if not args.NO_RENDER:
+            if not env.viewer.isopen:
+                break
         # Updates policy.
         policy.update()
         moving_reward = 0.1 * ep_reward + (1 - 0.1) * moving_reward
@@ -73,6 +82,7 @@ def main():
             break
 
     env.close()
+
 
 if __name__ == "__main__":
     main()
