@@ -22,8 +22,8 @@ class Reinforce(nn.Module):
     def __init__(self,
                  input_nodes,
                  output_nodes,
-                 gamma,
-                 learning_rate,
+                 gamma=None,
+                 learning_rate=None,
                  optimizer=None):
         super(Reinforce, self).__init__()
         self.fc1 = nn.Linear(input_nodes, 128)
@@ -84,8 +84,8 @@ class ActorCritic(nn.Module):
     def __init__(self,
                  input_nodes,
                  output_nodes,
-                 gamma,
-                 learning_rate,
+                 gamma=None,
+                 learning_rate=None,
                  optimizer=None):
         super(ActorCritic, self).__init__()
         self.fc1 = nn.Linear(input_nodes, 128)

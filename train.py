@@ -32,7 +32,7 @@ parser.add_argument('--seed',
                     default=9527,
                     metavar='SEED',
                     dest='SEED',
-                    help='random seed (default: 543)')
+                    help='random seed (default: 9527)')
 parser.add_argument('--log-interval',
                     type=int,
                     default=100,
