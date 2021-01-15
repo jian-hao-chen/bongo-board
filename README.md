@@ -42,5 +42,29 @@ $ python train.py [-h] [--episodes EPISODES] [--gamma GAMMA] [--alpha ALPHA]
 * `--alpha ALPHA` - learning rate (default: 0.001)
 * `--seed SEED` - random seed (default: 9527)
 * `--log-interval LOG_INTERVAL` - number of episodes for logging interval (default: 100)
-* `--no-render` - set to disable render.
-* `--a2c` - set to use "Actor-Critic" as policy.
+* `--no-render` - set to disable render
+* `--a2c` - set to use "Actor-Critic" as policy
+
+### Evaluation
+```bash
+$ python evaluate.py <model_path>
+```
+This command evaluates the "Bongo Board" with the given model.
+
+#### Usage
+```bash
+$ python evaluate.py <model_path> [-h] [--a2c]
+```
+* `-h`, `--help` - shows help message and exit
+* `--a2c` - set to load an "Actor-Critic" model
+
+## Reference
+* [OpenAI Gym](https://gym.openai.com/)
+* [PyTorch](https://pytorch.org)
+* [pytorch/examples/reinforcement_learning](https://github.com/pytorch/examples/tree/master/reinforcement_learning)
+* REINFORCE algorithm
+  > Williams, R. J. (1988). Toward a theory of reinforcement-learning connectionist systems.  
+  > Technical Report NU-CCS-88-3, Northeastern University, College of Computer Science.
+* Actor-Critic algorithm
+  > Konda, V. R., & Tsitsiklis, J. N. (2000). Actor-critic algorithms.  
+  > In Advances in neural information processing systems (pp. 1008-1014).

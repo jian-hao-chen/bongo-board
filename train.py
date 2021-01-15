@@ -57,7 +57,7 @@ def main():
 
     env = BongoBoard()
     env.seed(args.SEED)
-    torch.manual_seed(args.SEED)
+    # torch.manual_seed(args.SEED)
     env.reset()
 
     input_nodes = env.observation_space.shape[0]

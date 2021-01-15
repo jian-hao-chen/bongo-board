@@ -45,16 +45,16 @@ class BongoBoard(gym.Env):
 
     LINK_LENGTH_1 = 0.125  # [m]
     LINK_LENGTH_2 = 1.1  # [m]
-    LINK_MASS_1 = 10.  #: [kg] mass of link 1
+    LINK_MASS_1 = 0.1  #: [kg] mass of link 1
     LINK_MASS_2 = 5.  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.125 / 2  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_1 = 0.0  #: [m] position of the center of mass of link 1
     LINK_COM_POS_2 = 1.1  #: [m] position of the center of mass of link 2
     LINK_MOI = 1.  #: moments of inertia for both links
 
     MAX_VEL_1 = 4 * pi
-    MAX_VEL_2 = pi
+    MAX_VEL_2 = 0.5 * pi
 
-    AVAILABLE_TORQUE = [-1., +1.]
+    AVAILABLE_TORQUE = [-1., 0., +1.]
 
     # Use dynamics equations from the nips paper or the book.
     book_or_nips = "book"
@@ -67,7 +67,7 @@ class BongoBoard(gym.Env):
                         dtype=np.float32)
         low = -high
         self.observation_space = spaces.Box(low, high)
-        self.action_space = spaces.Discrete(2)
+        self.action_space = spaces.Discrete(len(self.AVAILABLE_TORQUE))
         self.state = None
         self.seed()
 

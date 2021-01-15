@@ -1,0 +1,67 @@
+﻿NTNU Honesty Declaration
+------------------------
+
+
+I 陳建豪, 60875002H hereby submit my material for assessment.
+I have worked together in a group with:
+  1.) 沈方靖 60875001H
+
+
+I certify that the following material submitted for evaluation in my course work 
+is my own work, except for material listed in the section 'External Sources' below.
+
+
+You are allowed to freely discuss the assignment with your classmates as long as the
+discussion is limited to what could reasonably be exchanged on a whiteboard or notepad. 
+If you exchange more information, then you must specify this in the 'External Section' below.
+
+
+In particular, I certify that with the exception of material listed in the section
+'External Sources' below:
+
+
+  1.) I have implemented the program by myself
+  2.) I have run the tests and experiments by myself and the results were as 
+      described in my report.
+  3.) I have written the report describing my design, work, experiments by myself.
+
+
+External Sources
+----------------
+You are allowed to use external sources to complete your assignment without 
+disciplinary penalty as long as they are mentioned in this section.
+
+
+Some example entries may be:
+   I copied the part of my program that reads in the input from Jacky Baltes
+   I found a description of the GCD algorithm at http://www.teachmath.com/ and used it 
+      for the design of my program
+   I used the opencv library and its documentation for http://www.opencv.org
+
+
+List ALL sources of information that you used in this work.
+
+
+1.) Lecture slides by Jacky Baltes
+
+2.) I implemented the program with OpenAI Gym library and its official page
+    for https://gym.openai.com/
+
+3.) I build the environment by modifying "Acrobot-v1" from OpenAI Gym library.
+    Link: https://gym.openai.com/envs/Acrobot-v1/
+
+4.) I used the PyTorch library and its documentation for https://pytorch.org
+
+5.) I found a example implementation of the REINFORCE algorithm at PyTorch GitHub
+    repository and used it for the design of my program.
+    Link: https://github.com/pytorch/examples/blob/master/reinforcement_learning/reinforce.py
+
+6.) I found a example implementation of the Actor-Critic algorithm at PyTorch GitHub
+    repository and used it for the design of my program.
+    Link: https://github.com/pytorch/examples/blob/master/reinforcement_learning/actor_critic.py
+
+7.) I used the matplotlib library to plot the result graph and its documentation for
+    https://matplotlib.org/3.1.1/index.html
+    
+8.) I used argparse library to build the command line interface for my program and
+    its documentation for https://docs.python.org/zh-tw/3/howto/argparse.html

@@ -26,9 +26,9 @@ class Reinforce(nn.Module):
                  learning_rate=None,
                  optimizer=None):
         super(Reinforce, self).__init__()
-        self.fc1 = nn.Linear(input_nodes, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.out = nn.Linear(64, output_nodes)
+        self.fc1 = nn.Linear(input_nodes, 16)
+        self.fc2 = nn.Linear(16, 16)
+        self.out = nn.Linear(16, output_nodes)
 
         self.saved_log_probs = []
         self.rewards = []
@@ -88,12 +88,12 @@ class ActorCritic(nn.Module):
                  learning_rate=None,
                  optimizer=None):
         super(ActorCritic, self).__init__()
-        self.fc1 = nn.Linear(input_nodes, 128)
-        self.fc2 = nn.Linear(128, 64)
+        self.fc1 = nn.Linear(input_nodes, 16)
+        self.fc2 = nn.Linear(16, 16)
         # Actor's layer
-        self.action_head = nn.Linear(64, output_nodes)
+        self.action_head = nn.Linear(16, output_nodes)
         # Critic's layer
-        self.value_head = nn.Linear(64, 1)
+        self.value_head = nn.Linear(16, 1)
         self.saved_actions = []
         self.rewards = []
         self.gamma = gamma
