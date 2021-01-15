@@ -131,4 +131,5 @@ dmypy.json
 # Vscode settings
 .vscode
 
-model
+model/*
+60875002H_*
